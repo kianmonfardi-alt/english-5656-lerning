@@ -1,0 +1,448 @@
+```html
+{% load tz %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت آزمون‌ها | English Platform</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Tahoma, Arial, sans-serif;
+            background: #f4f6fb;
+            color: #20263a;
+            line-height: 1.8;
+        }
+
+        header {
+            background: #fff;
+            border-bottom: 1px solid #e7eaf2;
+            padding: 18px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        header h1 {
+            font-size: 21px;
+            margin: 0;
+        }
+
+        header a {
+            text-decoration: none;
+            color: #5967d9;
+            font-weight: bold;
+        }
+
+        main {
+            max-width: 1050px;
+            margin: 30px auto;
+            padding: 0 18px;
+        }
+
+        .intro {
+            margin-bottom: 24px;
+        }
+
+        .intro h2 {
+            margin-bottom: 5px;
+        }
+
+        .intro p {
+            color: #6b7280;
+            margin-top: 0;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e7eaf2;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 5px 20px rgba(30, 40, 80, 0.035);
+        }
+
+        .card h2, .card h3 {
+            margin-top: 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d9deea;
+            border-radius: 9px;
+            font: inherit;
+            font-size: 14px;
+            background: #fff;
+            color: #20263a;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: 2px solid #c8cdfb;
+            border-color: #5967d9;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 85px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 18px;
+            background: #5967d9;
+            color: #fff;
+            font: inherit;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4553c3;
+        }
+
+        .secondary {
+            background: #edf0ff;
+            color: #4553c3;
+        }
+
+        .secondary:hover {
+            background: #dfe4ff;
+        }
+
+        .message {
+            padding: 12px 15px;
+            background: #eaf8ef;
+            color: #17683b;
+            border-radius: 9px;
+            margin-bottom: 12px;
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .exam {
+            border: 1px solid #e4e7f0;
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 16px;
+        }
+
+        .exam-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .exam-header h3 {
+            margin-bottom: 4px;
+        }
+
+        .tag {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 3px 10px;
+            background: #edf0ff;
+            color: #4553c3;
+            font-size: 12px;
+        }
+
+        .question-form {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #edf0f5;
+        }
+
+        .question-form h4 {
+            margin-top: 0;
+        }
+
+        .question-list {
+            background: #f8f9fd;
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 14px;
+        }
+
+        .question-item {
+            border-bottom: 1px solid #e5e8f0;
+            padding: 10px 0;
+        }
+
+        .question-item:last-child {
+            border-bottom: 0;
+        }
+
+        .options-preview {
+            color: #626b7d;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .empty {
+            text-align: center;
+            color: #6b7280;
+            padding: 25px 10px;
+        }
+
+        @media (max-width: 650px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            header h1 {
+                font-size: 18px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <h1>📘 مدیریت آزمون‌های هفتگی</h1>
+    <a href="{% url 'teacher_dashboard' %}">بازگشت به پنل معلم ←</a>
+</header>
+
+<main>
+    <section class="intro">
+        <h2>آزمون‌های کلاس</h2>
+        <p>آزمون بساز، زمان برگزاری را مشخص کن و سؤال‌های چهارگزینه‌ای اضافه کن.</p>
+    </section>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <section class="card">
+        <h2>➕ ساخت آزمون جدید</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_exam">
+
+            <div class="grid">
+                <div class="field full">
+                    <label for="title">عنوان آزمون</label>
+                    <input id="title" name="title" type="text"
+                           maxlength="200" required
+                           placeholder="مثلاً آزمون اصطلاحات هفته">
+                </div>
+
+                <div class="field full">
+                    <label for="description">توضیحات</label>
+                    <textarea id="description" name="description"
+                              placeholder="موضوع یا توضیحات آزمون..."></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="start_time">زمان شروع</label>
+                    <input id="start_time" name="start_time"
+                           type="datetime-local" required>
+                </div>
+
+                <div class="field">
+                    <label for="end_time">زمان پایان</label>
+                    <input id="end_time" name="end_time"
+                           type="datetime-local" required>
+                </div>
+            </div>
+
+            <button type="submit">ساخت آزمون</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>📝 آزمون‌های ساخته‌شده</h2>
+
+        {% for exam in exams %}
+            <article class="exam">
+                <div class="exam-header">
+                    <div>
+                        <h3>{{ exam.title }}</h3>
+                        <p class="muted">{{ exam.description|default:"بدون توضیحات" }}</p>
+                    </div>
+
+                    <span class="tag">
+                        {% if exam.is_active %}
+                            فعال
+                        {% else %}
+                            غیرفعال
+                        {% endif %}
+                    </span>
+                </div>
+
+                <p class="muted">
+                    شروع:
+                    {{ exam.start_time|date:"Y/m/d - H:i" }}
+                    <br>
+                    پایان:
+                    {{ exam.end_time|date:"Y/m/d - H:i" }}
+                </p>
+
+                <div class="question-list">
+                    <strong>سؤال‌های این آزمون</strong>
+
+                    {% for question in exam.questions.all %}
+                        <div class="question-item">
+                            <strong>{{ forloop.counter }}. {{ question.text }}</strong>
+                            <div class="options-preview">
+                                الف) {{ question.option_a }} |
+                                ب) {{ question.option_b }} |
+                                ج) {{ question.option_c }} |
+                                د) {{ question.option_d }}
+                            </div>
+                            <div class="muted">
+                                امتیاز سؤال: {{ question.points }}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="muted">هنوز سؤالی به این آزمون اضافه نشده است.</p>
+                    {% endfor %}
+                </div>
+
+                {% if not exam.is_active %}
+                    <form method="post" class="question-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_question">
+                        <input type="hidden" name="exam_id" value="{{ exam.id }}">
+
+                        <h4>➕ افزودن سؤال چهارگزینه‌ای</h4>
+
+                        <div class="field">
+                            <label for="question_text_{{ exam.id }}">متن سؤال</label>
+                            <textarea id="question_text_{{ exam.id }}"
+                                      name="question_text" required
+                                      maxlength="500"></textarea>
+                        </div>
+
+                        <div class="grid">
+                            <div class="field">
+                                <label for="a_{{ exam.id }}">گزینهٔ الف</label>
+                                <input id="a_{{ exam.id }}" name="option_a"
+                                       type="text" maxlength="250" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="b_{{ exam.id }}">گزینهٔ ب</label>
+                                <input id="b_{{ exam.id }}" name="option_b"
+                                       type="text" maxlength="250" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="c_{{ exam.id }}">گزینهٔ ج</label>
+                                <input id="c_{{ exam.id }}" name="option_c"
+                                       type="text" maxlength="250" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="d_{{ exam.id }}">گزینهٔ د</label>
+                                <input id="d_{{ exam.id }}" name="option_d"
+                                       type="text" maxlength="250" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="correct_{{ exam.id }}">پاسخ صحیح</label>
+                                <select id="correct_{{ exam.id }}"
+                                        name="correct_option" required>
+                                    <option value="a">گزینهٔ الف</option>
+                                    <option value="b">گزینهٔ ب</option>
+                                    <option value="c">گزینهٔ ج</option>
+                                    <option value="d">گزینهٔ د</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label for="points_{{ exam.id }}">امتیاز سؤال</label>
+                                <input id="points_{{ exam.id }}" name="points"
+                                       type="number" min="1" max="100"
+                                       value="1" required>
+                            </div>
+                        </div>
+
+                        <button type="submit">ثبت سؤال</button>
+                    </form>
+                {% else %}
+                    <p class="muted">
+                        برای جلوگیری از تغییر سؤال‌ها، افزودن سؤال فقط وقتی آزمون غیرفعال است امکان‌پذیر است.
+                    </p>
+                {% endif %}
+            </article>
+        {% empty %}
+            <div class="empty">
+                هنوز آزمونی ساخته نشده است. از فرم بالا اولین آزمون را بساز.
+            </div>
+        {% endfor %}
+    </section>
+</main>
+
+<script>
+    const startInput = document.getElementById("start_time");
+    const endInput = document.getElementById("end_time");
+
+    startInput.addEventListener("change", function () {
+        endInput.min = startInput.value;
+
+        if (endInput.value && endInput.value <= startInput.value) {
+            endInput.value = "";
+        }
+    });
+
+    endInput.addEventListener("change", function () {
+        if (startInput.value && endInput.value <= startInput.value) {
+            alert("زمان پایان باید بعد از زمان شروع باشد.");
+            endInput.value = "";
+        }
+    });
+</script>
+</body>
+</html>
+```

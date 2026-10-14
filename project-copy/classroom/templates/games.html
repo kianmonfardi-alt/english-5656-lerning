@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت بازی‌ها</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: Tahoma, Arial, sans-serif;
+            background: #10101b;
+            color: #f5f5ff;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #ff79c6;
+        }
+
+        .subtitle {
+            color: #b9b9cc;
+            line-height: 1.8;
+        }
+
+        .card {
+            background: #1c1c2b;
+            border: 1px solid #38384d;
+            border-radius: 16px;
+            padding: 22px;
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            margin-top: 16px;
+            margin-bottom: 7px;
+        }
+
+        input,
+        textarea,
+        select,
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 9px;
+            font: inherit;
+        }
+
+        input,
+        textarea,
+        select {
+            background: #12121e;
+            color: white;
+            border: 1px solid #45455e;
+        }
+
+        button {
+            margin-top: 20px;
+            background: #ff79c6;
+            color: #17101b;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background: #ff9bd6;
+        }
+
+        .game {
+            padding: 16px;
+            margin: 14px 0;
+            background: #252538;
+            border-radius: 12px;
+            border-right: 4px solid #ff79c6;
+            overflow-wrap: anywhere;
+        }
+
+        .game h3 {
+            color: #ff9bd6;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            background: #303047;
+            margin: 12px 0;
+            line-height: 1.8;
+        }
+
+        .muted {
+            color: #b9b9cc;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #34344b;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>🎮 مدیریت بازی‌ها</h1>
+        <p class="subtitle">
+            بازی‌های کلاس را بساز، امتیاز تعیین کن و بازی‌های ثبت‌شده را ببین.
+        </p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <section class="card">
+            <h2>＋ ساخت بازی جدید</h2>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <label for="title">عنوان بازی</label>
+                <input
+                    id="title"
+                    name="title"
+                    type="text"
+                    maxlength="150"
+                    placeholder="مثلاً چالش اصطلاحات"
+                    required
+                >
+
+                <label for="description">توضیحات بازی</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="3"
+                    placeholder="توضیح کوتاه درباره بازی"
+                ></textarea>
+
+                <label for="game_type">نوع بازی</label>
+                <select id="game_type" name="game_type" required>
+                    <option value="quiz">پرسش و پاسخ</option>
+                    <option value="matching">وصل‌کردنی</option>
+                    <option value="puzzle">پازل</option>
+                    <option value="expressions">چالش اصطلاحات</option>
+                </select>
+
+                <label for="points">امتیاز بازی</label>
+                <input
+                    id="points"
+                    name="points"
+                    type="number"
+                    min="0"
+                    max="1000"
+                    value="10"
+                    required
+                >
+
+                <button type="submit">ساخت بازی</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>📚 بازی‌های ثبت‌شده</h2>
+
+            {% for game in games %}
+                <article class="game">
+                    <h3>{{ game.title }}</h3>
+
+                    <p>
+                        {{ game.description|default:"بدون توضیحات" }}
+                    </p>
+
+                    <p>
+                        نوع بازی: {{ game.get_game_type_display }}
+                    </p>
+
+                    <p>امتیاز: {{ game.points }}</p>
+
+                    <p>
+                        وضعیت:
+                        <span class="status">
+                            {% if game.is_active %}
+                                فعال
+                            {% else %}
+                                غیرفعال
+                            {% endif %}
+                        </span>
+                    </p>
+                </article>
+            {% empty %}
+                <p class="muted">
+                    هنوز بازی‌ای ساخته نشده است. اولین بازی را بساز!
+                </p>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expression Bank</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            background: #09090d;
+            color: #f5f5fa;
+            font-family: Arial, sans-serif;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .panel, .expression {
+            background: #15151e;
+            border: 1px solid #30303d;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        h1, h2 { color: #ff5275; }
+
+        label {
+            display: block;
+            margin: 14px 0 7px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0d0d14;
+            color: white;
+            border: 1px solid #393947;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        button, .button {
+            display: inline-block;
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 16px;
+            margin-top: 14px;
+            background: #ff385c;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .secondary { background: #343443; }
+        .danger { background: #8e263b; }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #242432;
+            border-radius: 8px;
+        }
+
+        .meaning { color: #ffb7c6; }
+        .example { color: #c4c4d1; }
+
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .panel, .expression { padding: 16px; }
+        }
+    </style>
+</head>
+
+<body>
+<main>
+    <h1>📚 بانک اصطلاحات انگلیسی</h1>
+
+    <a class="button secondary" href="{% if can_manage %}{% url 'teacher_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}">
+        بازگشت به پنل
+    </a>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if can_manage %}
+    <section class="panel">
+        <h2>{% if editing %}ویرایش اصطلاح{% else %}افزودن اصطلاح جدید{% endif %}</h2>
+
+        <form method="post" action="{% url 'expressions' %}">
+            {% csrf_token %}
+
+            <input type="hidden" name="action" value="save">
+
+            <input type="hidden" name="expression_id"
+                   value="{% if editing %}{{ editing.id }}{% endif %}">
+
+            <label for="phrase">English Expression</label>
+            <input id="phrase" name="phrase" maxlength="200"
+                   value="{% if editing %}{{ editing.phrase }}{% endif %}" required>
+
+            <label for="meaning">معنی فارسی</label>
+            <input id="meaning" name="meaning" maxlength="300"
+                   value="{% if editing %}{{ editing.meaning }}{% endif %}" required>
+
+            <label for="example">Example Sentence</label>
+            <textarea id="example" name="example" required>{% if editing %}{{ editing.example }}{% endif %}</textarea>
+
+            <button type="submit">
+                {% if editing %}ذخیره تغییرات{% else %}افزودن اصطلاح{% endif %}
+            </button>
+
+            {% if editing %}
+                <a class="button secondary" href="{% url 'expressions' %}">لغو ویرایش</a>
+            {% endif %}
+        </form>
+    </section>
+    {% endif %}
+
+    <h2>اصطلاحات ثبت‌شده</h2>
+
+    {% for expression in expressions %}
+        <article class="expression">
+            <h2>{{ expression.phrase }}</h2>
+            <p class="meaning"><strong>معنی:</strong> {{ expression.meaning }}</p>
+            <p class="example"><strong>مثال:</strong> {{ expression.example }}</p>
+
+            {% if can_manage %}
+                <a class="button secondary"
+                   href="{% url 'expressions' %}?edit={{ expression.id }}">
+                    ویرایش
+                </a>
+
+                <form method="post" action="{% url 'expressions' %}"
+                      style="display:inline"
+                      onsubmit="return confirm('این اصطلاح حذف شود؟');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="expression_id" value="{{ expression.id }}">
+                    <button class="danger" type="submit">حذف</button>
+                </form>
+            {% endif %}
+        </article>
+    {% empty %}
+        <div class="panel">
+            هنوز اصطلاحی ثبت نشده است.
+        </div>
+    {% endfor %}
+</main>
+</body>
+</html>

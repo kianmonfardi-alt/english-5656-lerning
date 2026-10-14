@@ -1,0 +1,282 @@
+```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آزمون‌های من | English Platform</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Tahoma, Arial, sans-serif;
+            background: #f4f6fb;
+            color: #20263a;
+            line-height: 1.9;
+        }
+
+        header {
+            background: #fff;
+            border-bottom: 1px solid #e7eaf2;
+            padding: 18px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        header h1 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        header a {
+            color: #5967d9;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 18px;
+        }
+
+        .intro {
+            margin-bottom: 24px;
+        }
+
+        .intro p,
+        .muted {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e7eaf2;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 22px;
+        }
+
+        .exam-title {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #edf0ff;
+            color: #4553c3;
+            padding: 3px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .question {
+            border-top: 1px solid #edf0f5;
+            padding: 18px 0;
+        }
+
+        .question-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1px solid #e4e7f0;
+            border-radius: 9px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .option:hover {
+            background: #f8f9ff;
+        }
+
+        .option input {
+            margin-top: 7px;
+            accent-color: #5967d9;
+            flex-shrink: 0;
+        }
+
+        .option span {
+            overflow-wrap: anywhere;
+        }
+
+        button {
+            width: 100%;
+            border: 0;
+            border-radius: 10px;
+            padding: 13px;
+            background: #5967d9;
+            color: white;
+            font: inherit;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4553c3;
+        }
+
+        .success {
+            background: #eaf8ef;
+            color: #17683b;
+            padding: 13px;
+            border-radius: 9px;
+        }
+
+        .empty {
+            text-align: center;
+            color: #6b7280;
+            padding: 30px 10px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 16px;
+            }
+
+            header h1 {
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <h1>📝 آزمون‌های هفتگی من</h1>
+    <a href="{% url 'student_dashboard' %}">بازگشت به پنل دانش‌آموز ←</a>
+</header>
+
+<main>
+    <section class="intro">
+        <h2>وقت یادگیری و تمرینه! 🌟</h2>
+        <p>آزمون فعال رو انتخاب کن و به سؤال‌ها پاسخ بده.</p>
+    </section>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% for exam in exams %}
+        <section class="card">
+            <h2 class="exam-title">{{ exam.title }}</h2>
+
+            <p>{{ exam.description|default:"برای این آزمون توضیحی ثبت نشده است." }}</p>
+
+            <span class="tag">آزمون هفتگی</span>
+
+            <p class="muted">
+                زمان پایان:
+                {{ exam.end_time|date:"Y/m/d - H:i" }}
+            </p>
+
+            {% if exam.id in attempted_ids %}
+                <div class="success">
+                    ✅ پاسخ‌های این آزمون قبلاً ثبت شده‌اند.
+                </div>
+            {% elif exam.questions.all %}
+                <form method="post" class="exam-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="submit_exam">
+                    <input type="hidden" name="exam_id" value="{{ exam.id }}">
+
+                    {% for question in exam.questions.all %}
+                        <div class="question">
+                            <div class="question-title">
+                                سؤال {{ forloop.counter }}:
+                                {{ question.text }}
+                            </div>
+
+                            <label class="option">
+                                <input type="radio"
+                                       name="question_{{ question.id }}"
+                                       value="a">
+                                <span>الف) {{ question.option_a }}</span>
+                            </label>
+
+                            <label class="option">
+                                <input type="radio"
+                                       name="question_{{ question.id }}"
+                                       value="b">
+                                <span>ب) {{ question.option_b }}</span>
+                            </label>
+
+                            <label class="option">
+                                <input type="radio"
+                                       name="question_{{ question.id }}"
+                                       value="c">
+                                <span>ج) {{ question.option_c }}</span>
+                            </label>
+
+                            <label class="option">
+                                <input type="radio"
+                                       name="question_{{ question.id }}"
+                                       value="d">
+                                <span>د) {{ question.option_d }}</span>
+                            </label>
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit">ثبت نهایی پاسخ‌ها</button>
+                </form>
+            {% else %}
+                <p class="muted">
+                    هنوز سؤالی برای این آزمون ثبت نشده است.
+                </p>
+            {% endif %}
+        </section>
+    {% empty %}
+        <section class="card empty">
+            <h3>📚 فعلاً آزمون فعالی وجود ندارد.</h3>
+            <p>وقتی معلم آزمونی را فعال کند، اینجا نمایش داده می‌شود.</p>
+        </section>
+    {% endfor %}
+</main>
+
+<script>
+    document.querySelectorAll(".exam-form").forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            const questions = form.querySelectorAll(".question");
+            let unanswered = 0;
+
+            questions.forEach(function (question) {
+                if (!question.querySelector('input[type="radio"]:checked')) {
+                    unanswered++;
+                }
+            });
+
+            if (unanswered > 0) {
+                const confirmSubmit = confirm(
+                    unanswered + " سؤال هنوز پاسخ داده نشده است. می‌خواهی پاسخ‌ها را ثبت کنی؟"
+                );
+
+                if (!confirmSubmit) {
+                    event.preventDefault();
+                }
+            } else {
+                if (!confirm("پاسخ‌ها ثبت نهایی شوند؟ بعد از ثبت امکان تلاش دوباره وجود ندارد.")) {
+                    event.preventDefault();
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
+```

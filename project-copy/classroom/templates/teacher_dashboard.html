@@ -1,0 +1,1049 @@
+```html
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fff5fa">
+    <title>Teacher Workspace | English Platform</title>
+
+    <style>
+        :root {
+            color-scheme: light;
+            --bg:#fff7fb;
+            --surface:rgba(255,255,255,.94);
+            --solid:#fff;
+            --text:#35263a;
+            --muted:#8d7b91;
+            --border:#f5dce9;
+            --accent:#f0529b;
+            --shadow:0 12px 30px rgba(232,105,164,.13);
+            --sidebar:#fff;
+            --hero1:#ffe1f0;
+            --hero2:#f4e8ff;
+            --hero-text:#633052;
+            --unread-bg:#fff0f7;
+        }
+
+        html[data-theme="dark"] {
+            color-scheme:dark;
+            --bg:#100e1c;
+            --surface:rgba(28,24,43,.96);
+            --solid:#1c182b;
+            --text:#f8edf9;
+            --muted:#b5a6c4;
+            --border:#39304c;
+            --accent:#ff62c8;
+            --shadow:0 10px 32px rgba(0,0,0,.23);
+            --sidebar:#171426;
+            --hero1:#3b214d;
+            --hero2:#24294b;
+            --hero-text:#fff1ff;
+            --unread-bg:#302039;
+        }
+
+        * { box-sizing:border-box; }
+
+        html { scroll-behavior:smooth; }
+
+        body {
+            margin:0;
+            min-height:100vh;
+            background:radial-gradient(ellipse at 8% 0%,rgba(255,180,220,.17),transparent 34%),var(--bg);
+            color:var(--text);
+            font-family:Inter,"Segoe UI",Arial,sans-serif;
+            transition:background .25s,color .25s;
+        }
+
+        button,input { font:inherit; }
+        button,a { -webkit-tap-highlight-color:transparent; }
+        a { color:inherit;text-decoration:none; }
+
+        button:focus-visible,a:focus-visible,input:focus-visible {
+            outline:3px solid var(--accent);
+            outline-offset:3px;
+        }
+
+        .app {
+            min-height:100vh;
+            display:grid;
+            grid-template-columns:250px minmax(0,1fr);
+        }
+
+        .sidebar {
+            padding:24px 16px;
+            background:var(--sidebar);
+            border-right:1px solid var(--border);
+            display:flex;
+            flex-direction:column;
+            gap:25px;
+        }
+
+        .brand { display:flex;align-items:center;gap:12px;padding:0 8px; }
+
+        .brand-logo {
+            width:45px;height:45px;flex:0 0 auto;border-radius:16px;
+            display:grid;place-items:center;font-size:23px;font-weight:900;
+            color:white;background:linear-gradient(135deg,#ff62b2,#a66bff);
+            box-shadow:0 6px 17px rgba(240,82,155,.35);
+        }
+
+        .brand-title { font-weight:850;font-size:16px; }
+        .brand-sub { color:var(--muted);font-size:11px;margin-top:4px; }
+
+        .menu-label {
+            color:var(--muted);font-size:10px;letter-spacing:1.5px;
+            font-weight:800;padding:0 12px;margin-bottom:8px;
+        }
+
+        .menu { display:grid;gap:8px; }
+
+        .nav-link {
+            min-height:45px;display:flex;align-items:center;gap:12px;
+            padding:11px 13px;border:1px solid transparent;border-radius:14px;
+            color:var(--muted);font-size:13px;font-weight:650;
+            transition:transform .2s,box-shadow .2s,background .2s,color .2s;
+        }
+
+        .nav-link .icon {
+            flex:0 0 22px;width:22px;text-align:center;font-size:18px;
+        }
+
+        .nav-link:hover {
+            color:var(--text);background:var(--surface);border-color:var(--border);
+            transform:translateX(3px);box-shadow:0 5px 14px rgba(240,82,155,.10);
+        }
+
+        .nav-link.active {
+            color:#d82c86;background:linear-gradient(115deg,#ffe0ef,#fff0f8);
+            border-color:#ffc3e0;
+            box-shadow:0 5px 0 #f4bdd8,0 9px 19px rgba(240,82,155,.17);
+        }
+
+        html[data-theme="dark"] .nav-link.active {
+            color:#ff9bd7;background:#39213f;border-color:#a94e9a;
+            box-shadow:0 0 15px rgba(255,98,200,.14);
+        }
+
+        .nav-badge {
+            margin-left:auto;
+            min-width:22px;
+            height:22px;
+            padding:0 6px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:99px;
+            background:var(--accent);
+            color:#fff;
+            font-size:11px;
+            font-weight:850;
+        }
+
+        .sidebar-bottom { margin-top:auto;display:grid;gap:9px; }
+
+        .mini-card {
+            padding:16px;border-radius:19px;
+            background:linear-gradient(135deg,var(--hero1),var(--hero2));
+            border:1px solid var(--border);color:var(--hero-text);
+        }
+
+        .mini-card strong { display:block;margin:8px 0 5px; }
+        .mini-card p { font-size:11px;line-height:1.6;margin:0;opacity:.8; }
+
+        .main { min-width:0;padding:24px clamp(14px,3vw,38px) 36px; }
+
+        .topbar {
+            display:flex;align-items:center;justify-content:space-between;
+            gap:15px;margin-bottom:28px;
+        }
+
+        .search {
+            width:min(360px,48%);display:flex;align-items:center;gap:9px;
+            padding:11px 14px;border:1px solid var(--border);border-radius:15px;
+            background:var(--surface);box-shadow:var(--shadow);
+        }
+
+        .search input {
+            width:100%;min-width:0;border:0;outline:0;color:var(--text);
+            background:transparent;font-size:13px;
+        }
+
+        .top-actions { display:flex;align-items:center;gap:10px; }
+
+        .theme-btn,.menu-toggle {
+            width:43px;height:43px;display:grid;place-items:center;cursor:pointer;
+            border:1px solid var(--border);border-radius:14px;
+            background:var(--surface);color:var(--text);
+            box-shadow:0 4px 0 var(--border),var(--shadow);
+            transition:transform .2s,box-shadow .2s;
+        }
+
+        .theme-btn:hover,.menu-toggle:hover { transform:translateY(-2px); }
+        .profile { display:flex;align-items:center;gap:10px;padding-left:10px; }
+
+        .avatar {
+            width:42px;height:42px;flex:0 0 auto;display:grid;place-items:center;
+            border-radius:15px;background:linear-gradient(135deg,#ff9bce,#d4a6ff);
+            color:white;font-size:18px;font-weight:800;
+        }
+
+        .profile-name { font-size:13px;font-weight:800; }
+        .profile-role { font-size:11px;color:var(--muted);margin-top:4px; }
+        .menu-toggle { display:none; }
+
+        .welcome {
+            position:relative;overflow:hidden;padding:clamp(23px,4vw,38px);
+            border-radius:27px;background:linear-gradient(115deg,var(--hero1),var(--hero2));
+            border:1px solid var(--border);
+            box-shadow:0 13px 34px rgba(235,105,166,.16);
+            margin-bottom:25px;
+        }
+
+        .welcome::after {
+            content:"✿";position:absolute;right:23px;top:-39px;
+            font-size:180px;color:rgba(255,255,255,.36);
+            pointer-events:none;transform:rotate(-15deg);
+        }
+
+        .welcome-content { position:relative;z-index:1;max-width:620px; }
+
+        .eyebrow {
+            font-size:11px;font-weight:850;letter-spacing:1.6px;
+            color:var(--accent);text-transform:uppercase;
+        }
+
+        h1 { font-size:clamp(25px,3vw,36px);margin:13px 0 10px;letter-spacing:-1px; }
+
+        .welcome p {
+            color:var(--hero-text);opacity:.82;font-size:14px;line-height:1.8;
+            margin:0 0 20px;
+        }
+
+        .pill {
+            display:inline-flex;align-items:center;gap:8px;padding:10px 15px;
+            border:1px solid rgba(255,255,255,.8);border-radius:99px;
+            background:rgba(255,255,255,.38);font-size:12px;font-weight:800;
+            color:var(--hero-text);
+        }
+
+        .section-heading {
+            display:flex;align-items:end;justify-content:space-between;
+            gap:12px;margin:28px 0 16px;
+        }
+
+        .section-heading h2 { margin:0;font-size:18px; }
+        .section-heading p { color:var(--muted);margin:6px 0 0;font-size:12px; }
+
+        .stats {
+            display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;
+        }
+
+        .stat-card {
+            --tone:#f0529b;min-width:0;position:relative;overflow:hidden;
+            padding:19px;border:1px solid var(--border);border-radius:20px;
+            background:var(--solid);
+            box-shadow:0 7px 0 rgba(240,82,155,.10),var(--shadow);
+            transition:transform .22s,box-shadow .22s;
+        }
+
+        .stat-card:hover { transform:translateY(-4px); }
+        .stat-card:nth-child(1) { --tone:#f0529b; }
+        .stat-card:nth-child(2) { --tone:#2bc4ae; }
+        .stat-card:nth-child(3) { --tone:#9b71ff; }
+        .stat-card:nth-child(4) { --tone:#ffb547; }
+
+        .stat-top {
+            display:flex;justify-content:space-between;align-items:center;gap:8px;
+        }
+
+        .stat-icon {
+            width:43px;height:43px;display:grid;place-items:center;
+            border-radius:14px;background:color-mix(in srgb,var(--tone) 13%,transparent);
+            font-size:21px;
+        }
+
+        .stat-label { font-size:12px;color:var(--muted);margin-top:15px; }
+        .stat-value { font-size:clamp(24px,2.5vw,31px);font-weight:850;margin-top:7px; }
+        .stat-note { font-size:10px;color:var(--tone);margin-top:8px; }
+
+        .content-grid {
+            display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,1fr);
+            gap:19px;align-items:start;
+        }
+
+        .panel {
+            min-width:0;padding:21px;border:1px solid var(--border);
+            border-radius:22px;background:var(--surface);box-shadow:var(--shadow);
+        }
+
+        .actions-grid {
+            display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;
+        }
+
+        .action {
+            --tone:#f0529b;min-width:0;min-height:124px;position:relative;
+            display:flex;flex-direction:column;align-items:flex-start;
+            justify-content:space-between;gap:14px;padding:17px;
+            border-radius:18px;border:1px solid var(--border);background:var(--solid);
+            box-shadow:0 5px 0 rgba(240,82,155,.10),0 8px 19px rgba(240,82,155,.06);
+            transition:transform .2s,box-shadow .2s,border-color .2s;
+        }
+
+        .action:hover {
+            transform:translateY(-3px);border-color:var(--tone);
+            box-shadow:0 7px 0 rgba(240,82,155,.12),0 12px 26px rgba(240,82,155,.12);
+        }
+
+        .action:active { transform:translateY(2px); }
+        .action:nth-child(1) { --tone:#f0529b; }
+        .action:nth-child(2) { --tone:#25bda6; }
+        .action:nth-child(3) { --tone:#9a6aff; }
+        .action:nth-child(4) { --tone:#ffb546; }
+        .action:nth-child(5) { --tone:#459bff; }
+        .action:nth-child(6) { --tone:#ff6c80; }
+
+        .action-icon { display:block;font-size:25px;line-height:1.2; }
+        .action-copy { min-width:0;width:100%;padding-right:14px; }
+        .action-title { font-size:13px;font-weight:850; }
+        .action-desc { font-size:11px;color:var(--muted);line-height:1.6;margin-top:5px; }
+        .action-arrow { position:absolute;right:15px;bottom:16px;font-size:17px;color:var(--tone); }
+
+        .empty-state {
+            text-align:center;padding:28px 12px;color:var(--muted);
+            font-size:12px;line-height:1.8;
+        }
+
+        .top-student {
+            margin-top:18px;border-radius:20px;padding:18px;
+            background:linear-gradient(135deg,var(--hero1),var(--hero2));
+            border:1px solid var(--border);
+        }
+
+        .top-student-head {
+            display:flex;align-items:center;justify-content:space-between;gap:8px;
+        }
+
+        .top-student h3 { font-size:13px;margin:0; }
+        .top-student .crown { font-size:23px; }
+        .top-student p { font-size:11px;color:var(--muted);line-height:1.7; }
+
+        .student-placeholder {
+            padding:12px;border-radius:14px;background:rgba(255,255,255,.35);
+            color:var(--hero-text);font-size:12px;font-weight:750;
+        }
+
+        /* Notifications */
+        .notifications-section { scroll-margin-top:24px; }
+
+        .notification-tools {
+            display:flex;align-items:center;justify-content:space-between;
+            flex-wrap:wrap;gap:12px;margin-bottom:16px;
+        }
+
+        .notification-count {
+            display:inline-flex;align-items:center;gap:7px;
+            padding:8px 12px;border:1px solid var(--border);
+            border-radius:99px;color:var(--muted);font-size:12px;
+        }
+
+        .notification-button {
+            display:inline-flex;align-items:center;justify-content:center;
+            gap:7px;min-height:38px;padding:9px 13px;
+            border:1px solid var(--border);border-radius:12px;
+            background:var(--solid);color:var(--text);
+            font-size:12px;font-weight:750;cursor:pointer;
+            transition:transform .2s,border-color .2s;
+        }
+
+        .notification-button:hover {
+            transform:translateY(-1px);border-color:var(--accent);
+        }
+
+        .notification-button.primary {
+            color:#fff;background:var(--accent);border-color:var(--accent);
+        }
+
+        .notification-button:disabled {
+            opacity:.5;cursor:not-allowed;transform:none;
+        }
+
+        .notification-list { display:grid;gap:12px; }
+
+        .notification-item {
+            display:grid;grid-template-columns:43px minmax(0,1fr);
+            gap:13px;padding:16px;border:1px solid var(--border);
+            border-radius:17px;background:var(--solid);
+        }
+
+        .notification-item.unread {
+            background:var(--unread-bg);
+            border-color:color-mix(in srgb,var(--accent) 42%,var(--border));
+        }
+
+        .notification-icon {
+            width:43px;height:43px;display:grid;place-items:center;
+            border-radius:14px;background:var(--unread-bg);font-size:20px;
+        }
+
+        .notification-content { min-width:0; }
+
+        .notification-title-row {
+            display:flex;align-items:flex-start;justify-content:space-between;
+            gap:10px;flex-wrap:wrap;
+        }
+
+        .notification-title { margin:0;font-size:13px;font-weight:850; }
+
+        .notification-status {
+            display:inline-flex;align-items:center;gap:5px;
+            font-size:10px;font-weight:800;color:var(--accent);
+        }
+
+        .notification-status.read { color:var(--muted); }
+
+        .notification-message {
+            margin:8px 0 10px;color:var(--muted);
+            font-size:12px;line-height:1.8;overflow-wrap:anywhere;
+        }
+
+        .notification-time { color:var(--muted);font-size:10px; }
+
+        .notification-footer {
+            display:flex;justify-content:flex-end;margin-top:10px;
+        }
+
+        .notification-empty {
+            text-align:center;padding:38px 18px;border:1px dashed var(--border);
+            border-radius:18px;color:var(--muted);font-size:12px;line-height:1.9;
+        }
+
+        .notification-empty .empty-icon { font-size:32px;margin-bottom:8px; }
+
+        .footer { text-align:center;color:var(--muted);font-size:10px;margin-top:30px; }
+
+        .toast {
+            position:fixed;z-index:100;bottom:22px;left:50%;
+            max-width:calc(100% - 28px);padding:13px 18px;border-radius:14px;
+            background:var(--solid);border:1px solid var(--border);color:var(--text);
+            box-shadow:var(--shadow);font-size:12px;
+            transform:translate(-50%,20px);opacity:0;pointer-events:none;
+            transition:opacity .25s,transform .25s;
+        }
+
+        .toast.show { opacity:1;transform:translate(-50%,0); }
+
+        .logout-form { margin:0; }
+
+        .logout-btn {
+            width:100%;display:flex;align-items:center;gap:12px;padding:12px 13px;
+            border:1px solid #ffc8d8;border-radius:14px;color:#d84472;
+            background:#fff0f4;cursor:pointer;font-weight:750;font-size:13px;
+            box-shadow:0 4px 0 #f7d0df;transition:.2s;
+        }
+
+        .logout-btn:hover { transform:translateY(-2px); }
+
+        html[data-theme="dark"] .logout-btn {
+            color:#ff9fca;background:#3b2035;border-color:#854363;
+            box-shadow:0 0 17px rgba(255,98,160,.1);
+        }
+
+        @media (min-width:1450px) {
+            .main { max-width:1700px;width:100%;margin:0 auto; }
+        }
+
+        @media (max-width:1150px) {
+            .app { grid-template-columns:220px minmax(0,1fr); }
+            .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .content-grid { grid-template-columns:minmax(0,1fr); }
+        }
+
+        @media (max-width:760px) {
+            .app { display:block; }
+
+            .sidebar {
+                position:fixed;z-index:50;top:0;bottom:0;left:0;
+                width:min(285px,85vw);overflow-y:auto;
+                box-shadow:18px 0 45px rgba(0,0,0,.13);
+                transform:translateX(-105%);transition:transform .25s ease;
+            }
+
+            .sidebar.open { transform:translateX(0); }
+            .main { padding:16px 14px 28px; }
+            .topbar { gap:9px;margin-bottom:21px; }
+            .menu-toggle { display:grid;flex:0 0 auto; }
+            .search { width:auto;flex:1; }
+            .search input { font-size:12px; }
+            .top-actions { gap:8px; }
+            .profile { padding:0; }
+            .profile-info { display:none; }
+            .avatar { width:39px;height:39px;border-radius:13px; }
+            .welcome { border-radius:22px;padding:24px 20px; }
+            .welcome::after { right:-10px;font-size:120px;top:-17px; }
+            h1 { font-size:27px; }
+            .welcome p { font-size:12px;max-width:90%; }
+            .stats { gap:11px; }
+            .stat-card { padding:15px;border-radius:17px; }
+            .stat-value { font-size:25px; }
+            .panel { padding:16px; }
+            .section-heading h2 { font-size:16px; }
+            .notification-item { padding:13px;gap:10px; }
+        }
+
+        @media (max-width:390px) {
+            .search { padding:10px; }
+            .search input { width:90px; }
+            .theme-btn,.menu-toggle { width:39px;height:39px; }
+            .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .stat-card { padding:12px; }
+            .actions-grid { grid-template-columns:1fr; }
+            .action { min-height:105px; }
+            .notification-item { grid-template-columns:35px minmax(0,1fr); }
+            .notification-icon { width:35px;height:35px;font-size:17px; }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            *,*::before,*::after {
+                animation-duration:.01ms!important;
+                animation-iteration-count:1!important;
+                transition-duration:.01ms!important;
+                scroll-behavior:auto!important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app">
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-logo">E</div>
+            <div>
+                <div class="brand-title">English Platform</div>
+                <div class="brand-sub">Teacher Workspace ✿</div>
+            </div>
+        </div>
+
+        <div>
+            <div class="menu-label">WORKSPACE</div>
+            <nav class="menu" aria-label="Main navigation">
+                <a class="nav-link active" href="{% url 'teacher_dashboard' %}">
+                    <span class="icon">⌂</span><span>Dashboard</span>
+                </a>
+
+                <a class="nav-link" href="{% url 'users' %}">
+                    <span class="icon">♧</span><span>Students</span>
+                </a>
+
+                <a class="nav-link" href="{% url 'expressions' %}">
+                    <span class="icon">📚</span><span>Expression Bank</span>
+                </a>
+
+                <a class="nav-link" href="{% url 'games' %}">
+                    <span class="icon">🎮</span><span>Games</span>
+                </a>
+
+                <a class="nav-link" href="{% url 'teacher_exams' %}">
+                    <span class="icon">📝</span><span>Weekly Exam</span>
+                </a>
+
+                <a class="nav-link" href="#progress" data-feature="Student Progress">
+                    <span class="icon">📈</span><span>Student Progress</span>
+                </a>
+
+                <a class="nav-link" href="{% url 'messages' %}">
+                    <span class="icon">💌</span><span>Messages</span>
+                </a>
+
+                <!-- This link now opens the real notifications section. -->
+                <a class="nav-link" href="#notifications" id="notificationsNav">
+                    <span class="icon">🔔</span>
+                    <span>Notifications</span>
+                    {% if unread_notification_count %}
+                        <span class="nav-badge">{{ unread_notification_count }}</span>
+                    {% endif %}
+                </a>
+            </nav>
+        </div>
+
+        <div>
+            <div class="menu-label">PREFERENCES</div>
+            <nav class="menu" aria-label="Preferences">
+                <a class="nav-link" href="#settings" data-feature="Settings">
+                    <span class="icon">⚙️</span><span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="mini-card">
+                <div style="font-size:24px">🌷</div>
+                <strong>Teach. Inspire. Shine.</strong>
+                <p>Every little lesson can make a big difference.</p>
+            </div>
+
+            <form class="logout-form" method="post" action="{% url 'logout' %}"
+                  onsubmit="return confirm('Are you sure you want to log out?');">
+                {% csrf_token %}
+                <button class="logout-btn" type="submit">
+                    <span>↪</span><span>Log Out</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle" type="button"
+                    aria-label="Open navigation" aria-expanded="false">☰</button>
+
+            <label class="search">
+                <span>⌕</span>
+                <input id="searchInput" type="search"
+                       placeholder="Search this page..." aria-label="Search dashboard">
+            </label>
+
+            <div class="top-actions">
+                <button class="theme-btn" id="themeToggle" type="button"
+                        aria-label="Switch to dark mode" title="Switch theme">🌙</button>
+                <div class="profile">
+                    <div class="avatar">🌸</div>
+                    <div class="profile-info">
+                        <div class="profile-name">{{ request.user.username }}</div>
+                        <div class="profile-role">Teacher / Admin</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="welcome">
+            <div class="welcome-content">
+                <div class="eyebrow">YOUR TEACHER SPACE ✨</div>
+                <h1 id="greeting">Good day, Teacher! 🌸</h1>
+                <p>
+                    Let’s make today another great day for your students.
+                    Small steps, beautiful progress.
+                </p>
+                <span class="pill">♡ &nbsp; Teach • Inspire • Change</span>
+            </div>
+        </section>
+
+        <div class="section-heading">
+            <div>
+                <h2>Your Workspace ✨</h2>
+                <p>A quick overview of your teaching tools.</p>
+            </div>
+        </div>
+
+        <section class="stats" aria-label="Dashboard overview">
+            <article class="stat-card">
+                <div class="stat-top"><span class="stat-icon">👩‍🎓</span><span>🌸</span></div>
+                <div class="stat-label">Total Students</div>
+                <div class="stat-value">6</div>
+                <div class="stat-note">Your class size</div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top"><span class="stat-icon">📚</span><span>✧</span></div>
+                <div class="stat-label">Expressions</div>
+                <div class="stat-value">—</div>
+                <div class="stat-note">Database count not connected</div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top"><span class="stat-icon">🎮</span><span>✦</span></div>
+                <div class="stat-label">Games</div>
+                <div class="stat-value">—</div>
+                <div class="stat-note">Database count not connected</div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top"><span class="stat-icon">📝</span><span>♡</span></div>
+                <div class="stat-label">Weekly Exams</div>
+                <div class="stat-value">—</div>
+                <div class="stat-note">Database count not connected</div>
+            </article>
+        </section>
+
+        <div class="section-heading">
+            <div>
+                <h2>Quick Actions 💗</h2>
+                <p>Jump into your teaching tools.</p>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <section class="panel">
+                <div class="actions-grid">
+                    <a class="action" href="{% url 'users' %}">
+                        <span class="action-icon">👩‍🎓</span>
+                        <div class="action-copy">
+                            <div class="action-title">Students</div>
+                            <div class="action-desc">View and manage your class.</div>
+                        </div>
+                        <span class="action-arrow">↗</span>
+                    </a>
+
+                    <a class="action" href="{% url 'expressions' %}">
+                        <span class="action-icon">📚</span>
+                        <div class="action-copy">
+                            <div class="action-title">Expression Bank</div>
+                            <div class="action-desc">Add and edit useful expressions.</div>
+                        </div>
+                        <span class="action-arrow">↗</span>
+                    </a>
+
+                    <a class="action" href="{% url 'games' %}">
+                        <span class="action-icon">🎮</span>
+                        <div class="action-copy">
+                            <div class="action-title">Games</div>
+                            <div class="action-desc">Create fun learning activities.</div>
+                        </div>
+                        <span class="action-arrow">↗</span>
+                    </a>
+
+                    <a class="action" href="{% url 'teacher_exams' %}">
+                        <span class="action-icon">📝</span>
+                        <div class="action-copy">
+                            <div class="action-title">Weekly Exam</div>
+                            <div class="action-desc">Manage exams and enter grades.</div>
+                        </div>
+                        <span class="action-arrow">↗</span>
+                    </a>
+
+                    <a class="action" href="#progress" data-feature="Student Progress">
+                        <span class="action-icon">📈</span>
+                        <div class="action-copy">
+                            <div class="action-title">Student Progress</div>
+                            <div class="action-desc">Track student performance.</div>
+                        </div>
+                        <span class="action-arrow">↗</span>
+                    </a>
+
+                    <a class="action" href="{% url 'messages' %}">
+                        <span class="action-icon">💌</span>
+                        <div class="action-copy">
+                            <div class="action-title">Messages</div>
+                            <div class="action-desc">Contact students and Manager.</div>
+                        </div>
+                        <span class="action-arrow">↗</span>
+                    </a>
+                </div>
+            </section>
+
+            <div>
+                <section class="panel" id="activityPanel">
+                    <div class="section-heading" style="margin:0">
+                        <div>
+                            <h2>Recent Activity 🌷</h2>
+                            <p>Latest classroom updates.</p>
+                        </div>
+                    </div>
+                    <div class="empty-state">
+                        <div style="font-size:30px;margin-bottom:8px">🪄</div>
+                        No activity to display yet.<br>
+                        Activity history will appear here when connected.
+                    </div>
+                </section>
+
+                <section class="top-student">
+                    <div class="top-student-head">
+                        <h3>Top Student</h3>
+                        <span class="crown">👑</span>
+                    </div>
+                    <p>Weekly leader · Based on exam scores</p>
+                    <div class="student-placeholder">⭐ No results registered yet</div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Real notifications from the Django view -->
+        <section class="notifications-section" id="notifications">
+            <div class="section-heading">
+                <div>
+                    <h2>Notifications 🔔</h2>
+                    <p>Updates and messages related to your classroom.</p>
+                </div>
+            </div>
+
+            <section class="panel">
+                <div class="notification-tools">
+                    <div class="notification-count">
+                        <span>📬</span>
+                        <span>
+                            {{ unread_notification_count|default:0 }}
+                            unread notification{{ unread_notification_count|default:0|pluralize }}
+                        </span>
+                    </div>
+
+                    {% if unread_notification_count %}
+                        <form method="post" action="{% url 'mark_all_notifications_read' %}">
+                            {% csrf_token %}
+                            <button class="notification-button primary" type="submit">
+                                ✓ Mark all as read
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="notification-button" type="button" disabled>
+                            ✓ All caught up
+                        </button>
+                    {% endif %}
+                </div>
+
+                {% if notifications %}
+                    <div class="notification-list">
+                        {% for notification in notifications %}
+                            <article class="notification-item{% if not notification.is_read %} unread{% endif %}">
+                                <div class="notification-icon" aria-hidden="true">
+                                    {% if notification.is_read %}📩{% else %}🔔{% endif %}
+                                </div>
+
+                                <div class="notification-content">
+                                    <div class="notification-title-row">
+                                        <h3 class="notification-title">
+                                            {{ notification.title }}
+                                        </h3>
+
+                                        {% if notification.is_read %}
+                                            <span class="notification-status read">✓ Read</span>
+                                        {% else %}
+                                            <span class="notification-status">● Unread</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <p class="notification-message">
+                                        {{ notification.message|linebreaksbr }}
+                                    </p>
+
+                                    <div class="notification-time">
+                                        {{ notification.created_at|date:"M d, Y · H:i" }}
+                                    </div>
+
+                                    {% if not notification.is_read %}
+                                        <div class="notification-footer">
+                                            <form method="post"
+                                                  action="{% url 'mark_notification_read' notification.id %}">
+                                                {% csrf_token %}
+                                                <button class="notification-button" type="submit">
+                                                    ✓ Mark as read
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="notification-empty">
+                        <div class="empty-icon">🌷</div>
+                        <strong>No notifications yet</strong>
+                        <div>When a new notification arrives, it will appear here.</div>
+                    </div>
+                {% endif %}
+            </section>
+        </section>
+
+        <footer class="footer">
+            English Platform · Made with ♡ for better learning
+        </footer>
+    </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+    "use strict";
+
+    const root = document.documentElement;
+    const themeButton = document.getElementById("themeToggle");
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const toast = document.getElementById("toast");
+    const searchInput = document.getElementById("searchInput");
+    const greeting = document.getElementById("greeting");
+    const notificationsNav = document.getElementById("notificationsNav");
+
+    let toastTimer;
+
+    function setTheme(theme) {
+        const isDark = theme === "dark";
+        root.setAttribute("data-theme", isDark ? "dark" : "light");
+
+        if (themeButton) {
+            themeButton.textContent = isDark ? "☀️" : "🌙";
+            themeButton.title = isDark ? "Switch to day mode" : "Switch to night mode";
+            themeButton.setAttribute(
+                "aria-label",
+                isDark ? "Switch to day mode" : "Switch to night mode"
+            );
+        }
+
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) {
+            metaTheme.content = isDark ? "#100e1c" : "#fff5fa";
+        }
+    }
+
+    try {
+        const savedTheme = localStorage.getItem("english-platform-theme");
+        if (savedTheme === "dark" || savedTheme === "light") {
+            setTheme(savedTheme);
+        }
+    } catch (error) {
+        // Theme switching still works if storage is unavailable.
+    }
+
+    if (themeButton) {
+        themeButton.addEventListener("click", function () {
+            const nextTheme =
+                root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+
+            setTheme(nextTheme);
+
+            try {
+                localStorage.setItem("english-platform-theme", nextTheme);
+            } catch (error) {
+                // The selected theme remains active for this page.
+            }
+        });
+    }
+
+    function showToast(message) {
+        if (!toast) return;
+
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        clearTimeout(toastTimer);
+
+        toastTimer = setTimeout(function () {
+            toast.classList.remove("show");
+        }, 2600);
+    }
+
+    function closeMobileMenu() {
+        if (!sidebar || !menuToggle) return;
+
+        sidebar.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+        menuToggle.setAttribute("aria-label", "Open navigation");
+        menuToggle.textContent = "☰";
+    }
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener("click", function () {
+            const isOpen = sidebar.classList.toggle("open");
+
+            menuToggle.setAttribute("aria-expanded", String(isOpen));
+            menuToggle.setAttribute(
+                "aria-label",
+                isOpen ? "Close navigation" : "Open navigation"
+            );
+            menuToggle.textContent = isOpen ? "✕" : "☰";
+        });
+
+        document.addEventListener("click", function (event) {
+            if (
+                window.innerWidth <= 760 &&
+                sidebar.classList.contains("open") &&
+                !sidebar.contains(event.target) &&
+                !menuToggle.contains(event.target)
+            ) {
+                closeMobileMenu();
+            }
+        });
+
+        window.addEventListener("resize", function () {
+            if (window.innerWidth > 760) {
+                closeMobileMenu();
+            }
+        });
+    }
+
+    /*
+      Only placeholder links use data-feature.
+      Notifications has a real section and is not intercepted.
+      Messages and exams use real Django URLs.
+    */
+    document.querySelectorAll("[data-feature]").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const feature = link.getAttribute("data-feature") || "This feature";
+            showToast(feature + " page is not connected yet.");
+
+            if (window.innerWidth <= 760) {
+                closeMobileMenu();
+            }
+        });
+    });
+
+    if (notificationsNav) {
+        notificationsNav.addEventListener("click", function () {
+            if (window.innerWidth <= 760) {
+                closeMobileMenu();
+            }
+        });
+    }
+
+    if (searchInput) {
+        const actionItems = Array.from(document.querySelectorAll(".action"));
+
+        searchInput.addEventListener("input", function () {
+            const query = searchInput.value.trim().toLowerCase();
+            let matches = 0;
+
+            actionItems.forEach(function (item) {
+                const isMatch = item.textContent.toLowerCase().includes(query);
+                item.style.display = isMatch ? "" : "none";
+
+                if (isMatch) {
+                    matches++;
+                }
+            });
+
+            if (query && matches === 0) {
+                showToast("No matching teaching tools found.");
+            }
+        });
+    }
+
+    function updateGreeting() {
+        if (!greeting) return;
+
+        const hour = new Date().getHours();
+        let message = "Good day, Teacher! 🌸";
+
+        if (hour < 12) {
+            message = "Good Morning, Teacher! 🌸";
+        } else if (hour >= 18) {
+            message = "Good Evening, Teacher! 🌙";
+        }
+
+        greeting.textContent = message;
+    }
+
+    updateGreeting();
+
+    /*
+      If the page opens with #notifications in the URL,
+      move to the notifications section after the page renders.
+    */
+    if (window.location.hash === "#notifications") {
+        window.requestAnimationFrame(function () {
+            const section = document.getElementById("notifications");
+
+            if (section) {
+                section.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        });
+    }
+})();
+</script>
+</body>
+</html>
+```

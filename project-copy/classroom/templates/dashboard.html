@@ -1,0 +1,858 @@
+```html
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#09090d">
+    <title>Manager Dashboard | English Platform</title>
+
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        :root {
+            color-scheme:dark;
+            --bg:#09090d;
+            --panel:#15151e;
+            --panel-hover:#1c1c28;
+            --pink:#ff385c;
+            --text:#f5f5fa;
+            --muted:#9292a5;
+            --border:#292936;
+            --sidebar:#101017;
+            --field:#0f0f16;
+            --unread:#21151f;
+        }
+
+        html[data-theme="light"] {
+            color-scheme:light;
+            --bg:#f7f6fa;
+            --panel:#ffffff;
+            --panel-hover:#fff0f4;
+            --pink:#e52f59;
+            --text:#292533;
+            --muted:#777386;
+            --border:#e6e2ec;
+            --sidebar:#ffffff;
+            --field:#ffffff;
+            --unread:#fff0f5;
+        }
+
+        html { scroll-behavior:smooth; }
+
+        body {
+            font-family:Arial,Helvetica,sans-serif;
+            background:var(--bg);
+            color:var(--text);
+            min-height:100vh;
+            transition:background .2s,color .2s;
+        }
+
+        button,input { font:inherit; }
+        button,a { -webkit-tap-highlight-color:transparent; }
+
+        button:focus-visible,a:focus-visible,input:focus-visible {
+            outline:2px solid var(--pink);
+            outline-offset:4px;
+        }
+
+        a { color:inherit;text-decoration:none; }
+
+        .layout { display:flex;min-height:100vh; }
+
+        .sidebar {
+            width:245px;
+            flex-shrink:0;
+            background:var(--sidebar);
+            border-right:1px solid var(--border);
+            padding:28px 18px;
+            display:flex;
+            flex-direction:column;
+        }
+
+        .brand {
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:0 8px 30px;
+            border-bottom:1px solid var(--border);
+        }
+
+        .logo {
+            width:43px;height:43px;
+            display:grid;place-items:center;
+            border-radius:13px;
+            background:linear-gradient(135deg,#ff385c,#8c35ff);
+            font-size:24px;font-weight:900;color:white;
+        }
+
+        .brand h2 { font-size:16px; }
+        .brand p { color:var(--muted);font-size:11px;margin-top:5px; }
+
+        .nav-title {
+            color:var(--muted);
+            font-size:10px;
+            letter-spacing:2px;
+            margin:28px 10px 12px;
+        }
+
+        .nav { display:grid;gap:7px; }
+
+        .nav a {
+            color:var(--muted);
+            padding:13px 12px;
+            border-radius:10px;
+            font-size:13px;
+            transition:background .2s,color .2s;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+
+        .nav a:hover,.nav a.active {
+            color:var(--text);
+            background:var(--panel-hover);
+        }
+
+        .nav a.active { border-left:3px solid var(--pink); }
+
+        .nav-badge {
+            margin-left:auto;
+            min-width:21px;
+            height:21px;
+            padding:0 6px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:99px;
+            background:var(--pink);
+            color:#fff;
+            font-size:11px;
+            font-weight:bold;
+        }
+
+        .sidebar-bottom { margin-top:auto;padding-top:25px; }
+
+        .account {
+            background:var(--panel);
+            border:1px solid var(--border);
+            border-radius:12px;
+            padding:13px;
+            margin-bottom:12px;
+            overflow-wrap:anywhere;
+        }
+
+        .account small {
+            color:var(--muted);
+            display:block;
+            margin-bottom:7px;
+        }
+
+        .account strong { font-size:13px; }
+        .logout-form { width:100%; }
+
+        .logout {
+            width:100%;min-height:45px;
+            color:#ff7088;background:#28151e;
+            border:1px solid #542232;border-radius:10px;
+            cursor:pointer;transition:.2s;
+        }
+
+        .logout:hover { background:#49202d;border-color:var(--pink); }
+
+        .main { flex:1;min-width:0;padding:35px; }
+
+        .topbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:20px;
+            flex-wrap:wrap;
+            margin-bottom:30px;
+        }
+
+        .eyebrow {
+            color:var(--pink);
+            font-size:11px;
+            font-weight:bold;
+            letter-spacing:3px;
+            margin-bottom:9px;
+        }
+
+        h1 { font-size:clamp(24px,4vw,34px);overflow-wrap:anywhere; }
+
+        .subtitle {
+            color:var(--muted);
+            margin-top:10px;
+            font-size:13px;
+            line-height:1.7;
+        }
+
+        .top-actions { display:flex;align-items:center;gap:10px; }
+
+        .status {
+            display:flex;align-items:center;gap:9px;
+            color:#a8e8c0;background:#13251d;
+            border:1px solid #264735;
+            padding:11px 15px;border-radius:30px;font-size:12px;
+        }
+
+        .dot { width:8px;height:8px;border-radius:50%;background:#50d890; }
+
+        .theme-btn,.mobile-menu-btn {
+            width:42px;height:42px;
+            display:grid;place-items:center;
+            background:var(--panel);
+            color:var(--text);
+            border:1px solid var(--border);
+            border-radius:11px;
+            cursor:pointer;
+        }
+
+        .mobile-menu-btn { display:none; }
+
+        .welcome {
+            position:relative;
+            isolation:isolate;
+            padding:2px;
+            border-radius:19px;
+            margin-bottom:27px;
+            overflow:hidden;
+        }
+
+        .welcome::before {
+            content:"";
+            position:absolute;
+            z-index:-1;
+            inset:-200%;
+            background:conic-gradient(
+                #ff385c,#ffb52e,#8dff6a,#35d9ff,#8c35ff,#ff385c
+            );
+            animation:rainbow 8s linear infinite;
+        }
+
+        @keyframes rainbow { to { transform:rotate(360deg); } }
+
+        .welcome-inner {
+            background:
+                radial-gradient(ellipse at top right,rgba(255,56,92,.14),transparent 55%),
+                var(--panel);
+            border-radius:17px;
+            padding:29px;
+        }
+
+        .welcome-inner h2 { font-size:21px;margin-bottom:11px; }
+        .welcome-inner p { color:var(--muted);font-size:13px;line-height:1.9; }
+
+        .section-heading { font-size:16px;margin-bottom:16px; }
+
+        .stats {
+            display:grid;
+            grid-template-columns:repeat(4,minmax(0,1fr));
+            gap:16px;
+            margin-bottom:30px;
+        }
+
+        .stat-card {
+            background:var(--panel);
+            border:1px solid var(--border);
+            border-radius:15px;
+            padding:20px;
+            transition:background .2s,border-color .2s,transform .2s;
+            min-width:0;
+        }
+
+        .stat-card:hover {
+            background:var(--panel-hover);
+            border-color:#604052;
+            transform:translateY(-3px);
+        }
+
+        .stat-icon { font-size:23px;margin-bottom:18px; }
+
+        .stat-card h3 {
+            color:var(--muted);
+            font-size:12px;
+            font-weight:normal;
+            margin-bottom:12px;
+        }
+
+        .stat-value { font-size:28px;font-weight:bold; }
+        .stat-note { color:var(--muted);font-size:11px;margin-top:9px; }
+
+        .content-grid {
+            display:grid;
+            grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
+            gap:18px;
+        }
+
+        .panel {
+            background:var(--panel);
+            border:1px solid var(--border);
+            border-radius:15px;
+            padding:23px;
+            min-width:0;
+            scroll-margin-top:20px;
+        }
+
+        .panel h2 { font-size:15px;margin-bottom:20px; }
+
+        .empty {
+            border:1px dashed var(--border);
+            border-radius:11px;
+            padding:27px 15px;
+            text-align:center;
+            color:var(--muted);
+            font-size:12px;
+            line-height:1.9;
+        }
+
+        .empty-icon { font-size:28px;margin-bottom:12px; }
+
+        .message-link {
+            display:inline-block;
+            margin-top:18px;
+            padding:11px 16px;
+            border-radius:9px;
+            background:var(--pink);
+            color:white;
+            font-weight:bold;
+            transition:filter .2s;
+        }
+
+        .message-link:hover { filter:brightness(1.12); }
+
+        /* Notifications */
+
+        .notifications-panel { margin-top:22px; }
+
+        .notification-toolbar {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            gap:12px;
+            margin-bottom:17px;
+        }
+
+        .notification-count {
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            border:1px solid var(--border);
+            border-radius:30px;
+            padding:10px 13px;
+            color:var(--muted);
+            font-size:12px;
+        }
+
+        .notification-button {
+            min-height:39px;
+            padding:9px 13px;
+            border:1px solid var(--border);
+            border-radius:9px;
+            background:var(--panel-hover);
+            color:var(--text);
+            font-size:12px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .notification-button.primary {
+            background:var(--pink);
+            border-color:var(--pink);
+            color:#fff;
+        }
+
+        .notification-button:disabled {
+            opacity:.55;
+            cursor:not-allowed;
+        }
+
+        .notification-list { display:grid;gap:12px; }
+
+        .notification-item {
+            display:grid;
+            grid-template-columns:42px minmax(0,1fr);
+            gap:13px;
+            padding:15px;
+            border:1px solid var(--border);
+            border-radius:12px;
+            background:var(--field);
+            overflow-wrap:anywhere;
+        }
+
+        .notification-item.unread {
+            background:var(--unread);
+            border-color:color-mix(in srgb,var(--pink) 45%,var(--border));
+        }
+
+        .notification-icon {
+            width:42px;
+            height:42px;
+            display:grid;
+            place-items:center;
+            border-radius:11px;
+            background:var(--panel-hover);
+            font-size:20px;
+        }
+
+        .notification-body { min-width:0; }
+
+        .notification-title-row {
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            gap:8px;
+        }
+
+        .notification-title {
+            font-size:13px;
+            font-weight:bold;
+            line-height:1.6;
+        }
+
+        .notification-state {
+            color:var(--pink);
+            font-size:10px;
+            font-weight:bold;
+        }
+
+        .notification-state.read { color:var(--muted); }
+
+        .notification-message {
+            margin-top:8px;
+            color:var(--muted);
+            font-size:12px;
+            line-height:1.9;
+            overflow-wrap:anywhere;
+        }
+
+        .notification-date {
+            color:var(--muted);
+            font-size:10px;
+            margin-top:10px;
+        }
+
+        .notification-actions {
+            display:flex;
+            justify-content:flex-end;
+            margin-top:12px;
+        }
+
+        .notification-empty {
+            border:1px dashed var(--border);
+            border-radius:11px;
+            padding:32px 15px;
+            text-align:center;
+            color:var(--muted);
+            font-size:12px;
+            line-height:1.9;
+        }
+
+        .notification-empty .empty-icon { font-size:30px; }
+
+        .footer {
+            color:var(--muted);
+            text-align:center;
+            font-size:11px;
+            margin-top:30px;
+            line-height:1.8;
+        }
+
+        .toast {
+            position:fixed;
+            left:50%;
+            bottom:22px;
+            transform:translate(-50%,15px);
+            z-index:100;
+            padding:12px 17px;
+            max-width:calc(100% - 30px);
+            border:1px solid var(--border);
+            border-radius:10px;
+            background:var(--panel);
+            color:var(--text);
+            font-size:12px;
+            opacity:0;
+            pointer-events:none;
+            transition:opacity .2s,transform .2s;
+        }
+
+        .toast.show { opacity:1;transform:translate(-50%,0); }
+
+        @media (max-width:1100px) {
+            .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .content-grid { grid-template-columns:1fr; }
+        }
+
+        @media (max-width:700px) {
+            .layout { flex-direction:column; }
+
+            .sidebar {
+                width:100%;
+                border-right:0;
+                border-bottom:1px solid var(--border);
+                padding:18px;
+            }
+
+            .brand { padding-bottom:18px; }
+            .nav-title { margin-top:18px; }
+            .nav { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .sidebar-bottom { margin-top:20px;padding-top:15px; }
+            .main { padding:22px 16px; }
+            .topbar { align-items:flex-start; }
+            .welcome-inner { padding:22px 18px; }
+            .stat-card { padding:15px; }
+            .stat-value { font-size:23px; }
+            .notification-item { padding:12px;gap:10px; }
+        }
+
+        @media (max-width:390px) {
+            .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .nav { grid-template-columns:1fr; }
+            .notification-item { grid-template-columns:34px minmax(0,1fr); }
+            .notification-icon { width:34px;height:34px;font-size:17px; }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            *,*::before,*::after {
+                animation-duration:.01ms!important;
+                animation-iteration-count:1!important;
+                scroll-behavior:auto!important;
+                transition-duration:.01ms!important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="logo">E</div>
+            <div>
+                <h2>English Platform</h2>
+                <p>MANAGEMENT SYSTEM</p>
+            </div>
+        </div>
+
+        <div class="nav-title">MAIN MENU</div>
+
+        <nav class="nav" aria-label="Manager navigation">
+            <a class="active" href="{% url 'dashboard' %}">◈ &nbsp; Dashboard</a>
+            <a href="{% url 'users' %}">♙ &nbsp; Users</a>
+            <a href="#students">♧ &nbsp; Students</a>
+            <a href="#teacher">♧ &nbsp; Teacher</a>
+            <a href="{% url 'messages' %}">✉ &nbsp; Messages</a>
+
+            <a href="#notifications" id="notificationsNav">
+                🔔 &nbsp; Notifications
+                {% if unread_notification_count %}
+                    <span class="nav-badge">{{ unread_notification_count }}</span>
+                {% endif %}
+            </a>
+
+            <a href="#activities" data-feature="Activity Log">◷ &nbsp; Activity Log</a>
+            <a href="#settings" data-feature="Settings">⚙ &nbsp; Settings</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="account">
+                <small>LOGGED IN AS</small>
+                <strong>{{ request.user.username }}</strong>
+            </div>
+
+            <form class="logout-form" method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="logout" type="submit">↪ &nbsp; Log Out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <div class="eyebrow">MANAGER CONTROL CENTER</div>
+                <h1>Dashboard</h1>
+                <p class="subtitle">
+                    Welcome back, {{ request.user.username }}.
+                    Here's your platform overview.
+                </p>
+            </div>
+
+            <div class="top-actions">
+                <button class="theme-btn" id="themeToggle" type="button"
+                        aria-label="Switch to light mode" title="Change theme">☀️</button>
+                <div class="status">
+                    <span class="dot"></span>
+                    Manager Account Active
+                </div>
+            </div>
+        </header>
+
+        <section class="welcome">
+            <div class="welcome-inner">
+                <h2>Welcome to English Platform ✨</h2>
+                <p>
+                    Manage your English learning platform from one place.
+                    User management, student progress, teacher activities,
+                    messages and notifications will be organized here.
+                </p>
+            </div>
+        </section>
+
+        <h2 class="section-heading">Platform Overview</h2>
+
+        <section class="stats">
+            <article class="stat-card" id="users">
+                <div class="stat-icon">👥</div>
+                <h3>Total Users</h3>
+                <div class="stat-value">—</div>
+                <p class="stat-note">User statistics not connected yet</p>
+            </article>
+
+            <article class="stat-card" id="students">
+                <div class="stat-icon">🎓</div>
+                <h3>Students</h3>
+                <div class="stat-value">—</div>
+                <p class="stat-note">Student statistics not connected yet</p>
+            </article>
+
+            <article class="stat-card" id="teacher">
+                <div class="stat-icon">👩‍🏫</div>
+                <h3>Teachers</h3>
+                <div class="stat-value">—</div>
+                <p class="stat-note">Teacher statistics not connected yet</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <h3>System Status</h3>
+                <div class="stat-value" style="font-size:21px;">Online</div>
+                <p class="stat-note">Dashboard is available</p>
+            </article>
+        </section>
+
+        <section class="content-grid">
+            <article class="panel" id="activities">
+                <h2>◷ &nbsp; Recent Activities</h2>
+                <div class="empty">
+                    <div class="empty-icon">📋</div>
+                    <p>No activities to display yet.</p>
+                    <p>Activity tracking will be connected later.</p>
+                </div>
+            </article>
+
+            <article class="panel" id="topStudent">
+                <h2>🏆 &nbsp; Top Student</h2>
+                <div class="empty">
+                    <div class="empty-icon">⭐</div>
+                    <p>No student ranking is available yet.</p>
+                    <p>Ranking will appear after exam scores are recorded.</p>
+                </div>
+            </article>
+
+            <article class="panel" id="messagesPanel">
+                <h2>✉ &nbsp; Messages</h2>
+                <div class="empty">
+                    <div class="empty-icon">💬</div>
+                    <p>Open your inbox to send and receive messages.</p>
+                    <a class="message-link" href="{% url 'messages' %}">
+                        Open Messages
+                    </a>
+                </div>
+            </article>
+        </section>
+
+        <!-- Real notifications supplied by the Django dashboard view -->
+        <section class="panel notifications-panel" id="notifications">
+            <h2>🔔 &nbsp; Notifications</h2>
+
+            <div class="notification-toolbar">
+                <div class="notification-count">
+                    <span>📬</span>
+                    <span>
+                        {{ unread_notification_count|default:0 }}
+                        unread notification{{ unread_notification_count|default:0|pluralize }}
+                    </span>
+                </div>
+
+                {% if unread_notification_count %}
+                    <form method="post" action="{% url 'mark_all_notifications_read' %}">
+                        {% csrf_token %}
+                        <button class="notification-button primary" type="submit">
+                            ✓ Mark all as read
+                        </button>
+                    </form>
+                {% else %}
+                    <button class="notification-button" type="button" disabled>
+                        ✓ All caught up
+                    </button>
+                {% endif %}
+            </div>
+
+            {% if notifications %}
+                <div class="notification-list">
+                    {% for notification in notifications %}
+                        <article class="notification-item{% if not notification.is_read %} unread{% endif %}">
+                            <div class="notification-icon" aria-hidden="true">
+                                {% if notification.is_read %}📩{% else %}🔔{% endif %}
+                            </div>
+
+                            <div class="notification-body">
+                                <div class="notification-title-row">
+                                    <h3 class="notification-title">
+                                        {{ notification.title }}
+                                    </h3>
+
+                                    {% if notification.is_read %}
+                                        <span class="notification-state read">✓ Read</span>
+                                    {% else %}
+                                        <span class="notification-state">● Unread</span>
+                                    {% endif %}
+                                </div>
+
+                                <p class="notification-message">
+                                    {{ notification.message|linebreaksbr }}
+                                </p>
+
+                                <div class="notification-date">
+                                    {{ notification.created_at|date:"M d, Y · H:i" }}
+                                </div>
+
+                                {% if not notification.is_read %}
+                                    <div class="notification-actions">
+                                        <form method="post"
+                                              action="{% url 'mark_notification_read' notification.id %}">
+                                            {% csrf_token %}
+                                            <button class="notification-button" type="submit">
+                                                ✓ Mark as read
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="notification-empty">
+                    <div class="empty-icon">🌷</div>
+                    <strong>No notifications yet</strong>
+                    <p>When a notification is created for your account, it will appear here.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <footer class="footer" id="settings">
+            English Platform · Manager Dashboard<br>
+            Built for a better English learning experience.
+        </footer>
+    </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+    "use strict";
+
+    const root = document.documentElement;
+    const themeToggle = document.getElementById("themeToggle");
+    const toast = document.getElementById("toast");
+    const notificationsNav = document.getElementById("notificationsNav");
+    let toastTimer;
+
+    function setTheme(theme) {
+        const isLight = theme === "light";
+        root.setAttribute("data-theme", isLight ? "light" : "dark");
+
+        if (themeToggle) {
+            themeToggle.textContent = isLight ? "🌙" : "☀️";
+            themeToggle.title = isLight ? "Switch to dark mode" : "Switch to light mode";
+            themeToggle.setAttribute(
+                "aria-label",
+                isLight ? "Switch to dark mode" : "Switch to light mode"
+            );
+        }
+
+        const themeColor = document.querySelector('meta[name="theme-color"]');
+        if (themeColor) {
+            themeColor.content = isLight ? "#f7f6fa" : "#09090d";
+        }
+    }
+
+    try {
+        const savedTheme = localStorage.getItem("english-platform-manager-theme");
+        setTheme(savedTheme === "light" ? "light" : "dark");
+    } catch (error) {
+        setTheme("dark");
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener("click", function () {
+            const nextTheme =
+                root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+
+            setTheme(nextTheme);
+
+            try {
+                localStorage.setItem("english-platform-manager-theme", nextTheme);
+            } catch (error) {
+                // The selected theme remains active for this page.
+            }
+        });
+    }
+
+    function showToast(message) {
+        if (!toast) return;
+
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+
+        toastTimer = setTimeout(function () {
+            toast.classList.remove("show");
+        }, 2600);
+    }
+
+    document.querySelectorAll("[data-feature]").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            const feature = link.getAttribute("data-feature") || "This section";
+            showToast(feature + " is not connected yet.");
+        });
+    });
+
+    if (notificationsNav) {
+        notificationsNav.addEventListener("click", function () {
+            const notifications = document.getElementById("notifications");
+
+            if (notifications) {
+                notifications.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            }
+        });
+    }
+
+    if (window.location.hash === "#notifications") {
+        window.requestAnimationFrame(function () {
+            const notifications = document.getElementById("notifications");
+
+            if (notifications) {
+                notifications.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            }
+        });
+    }
+})();
+</script>
+</body>
+</html>
+```
